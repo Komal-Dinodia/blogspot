@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -54,20 +54,29 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
 
 ]
+CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Allow frontend access
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",  # Allow frontend access
 ]
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+    "cookie",
+]
 
 ROOT_URLCONF = 'blogspot.urls'
 
@@ -100,7 +109,10 @@ DATABASES = {
         'USER': 'myuser',      
         'PASSWORD': 'Myuser@1234',  
         'HOST': 'localhost',   
-        'PORT': '3306',        
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4'
+        },        
 }
 }
 
@@ -166,7 +178,6 @@ SIMPLE_JWT = {
 }
 
 
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
@@ -191,3 +202,6 @@ ACCOUNT_ADAPTER = "resources.adapters.CustomAccountAdapter"
 ACCOUNT_PASSWORD_RESET_ADAPTER = "resources.adapters.CustomPasswordResetAdapter"
 
 SITE_ID = 1
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

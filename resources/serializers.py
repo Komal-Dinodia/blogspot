@@ -4,8 +4,9 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from allauth.account.models import EmailAddress
 from rest_framework.exceptions import ValidationError
-from resources.models import Blog
+from resources.models import Blog, Comment
 from django.utils.text import slugify  
+from django.conf import settings
 
 
 User = get_user_model()
@@ -36,24 +37,51 @@ class CustomLoginSerializer(LoginSerializer):
             raise ValidationError("Email is not verified. Please check your inbox.")
 
         return super().validate(attrs)
-class BlogSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(max_length=100)
-    description = serializers.CharField(max_length = 1000)  
-    image = serializers.ImageField(required=False)  
+    
+
+class BlogGetSerializer(serializers.ModelSerializer):
+    comment_count = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    author = serializers.SerializerMethodField()
 
     class Meta:
         model = Blog
-        fields = ['id', 'title', 'slug', 'description', 'tags', 'image', 'likes', 'views', 'is_published', 'created_at', 'updated_at']
-        read_only_fields = ['slug'] 
+        fields = [
+            'slug', 'title', 'image', 'likes', 'views', 'updated_at' ,'user', 'comment_count', 'author'
+        ]    
 
-
-    def create(self, validated_data):
-        validated_data['slug'] = slugify(validated_data['title'])
+    def get_comment_count(self, obj):
+        return Comment.objects.filter(blog=obj).count()
+    
+    def get_image(self, obj):
+        if settings.DEBUG:
+            return f'http://127.0.0.1:8000/media/{obj.image}'
+        else:
+            return obj.image
         
-        original_slug = validated_data['slug']
-        count = 1
-        while Blog.objects.filter(slug=validated_data['slug']).exists():
-            validated_data['slug'] = f"{original_slug}-{count}"
-            count += 1
+    def get_author(self, obj):
+        return f"{obj.user.first_name if obj.user.first_name else ''} {obj.user.last_name if obj.user.last_name else ''}"   
+    
+class BlogDetailSeriazlizer(serializers.ModelSerializer):
+    comment_count = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    author = serializers.SerializerMethodField()
 
-        return super().create(validated_data)
+    class Meta:
+        model = Blog
+        fields = [
+            'slug', 'title', 'image', 'likes', 'views', 'updated_at' ,'user', 'comment_count', 'author', 'description'
+        ]    
+
+    def get_comment_count(self, obj):
+        return Comment.objects.filter(blog=obj).count()
+    
+    def get_image(self, obj):
+        if settings.DEBUG:
+            return f'http://127.0.0.1:8000/media/{obj.image}'
+        else:
+            return obj.image
+        
+    def get_author(self, obj):
+        return f"{obj.user.first_name if obj.user.first_name else ''} {obj.user.last_name if obj.user.last_name else ''}"   
+      
