@@ -6,8 +6,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import SearchFilter
-from resources.models import Blog
-from resources.serializers import BlogGetSerializer, BlogDetailSeriazlizer
+from resources.models import Blog, Comment
+from resources.serializers import BlogGetSerializer, BlogDetailSeriazlizer, CommentSeriazlizer, \
+    CommentGetSeriazlizer
 from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 
 
@@ -81,3 +82,33 @@ class VerifyEmailAPIVIew(APIView):
                 return Response("Invalid or expired verification key.", status=status.HTTP_400_BAD_REQUEST)
         return Response("Invalid or expired verification key.", status=status.HTTP_400_BAD_REQUEST)
 
+class ViewsCountApiView(APIView):
+    
+    def get(self, request, slug):
+        blog = Blog.objects.get(slug=slug)
+        blog.views += 1
+        blog.save()
+        return Response({})
+    
+class CommentCreateApiView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def post(self,request, slug):
+        user = request.user
+        blog = Blog.objects.get(slug=slug)
+        serializer = CommentSeriazlizer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=user, blog=blog)
+            return Response("Comment added succesfully",status=status.HTTP_201_CREATED)
+        
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class CommentGetApiView(APIView):
+    def get(self,request,slug):
+        comment = Comment.objects.filter(blog__slug=slug)
+        serializer = CommentGetSeriazlizer(comment,many=True)
+        return Response(serializer.data)
+
+        

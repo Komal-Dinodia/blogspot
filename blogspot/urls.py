@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
-from resources.views import BlogAPIView, BlogDetailView, MyBlogAPIView, VerifyEmailAPIVIew
+from resources.views import BlogAPIView, BlogDetailView, MyBlogAPIView, VerifyEmailAPIVIew, \
+    ViewsCountApiView, CommentCreateApiView, CommentGetApiView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -13,7 +14,11 @@ urlpatterns = [
     path('auth/', include('django.contrib.auth.urls')),
     path('api/blog/', BlogAPIView.as_view()), 
     path('api/blog/<slug:slug>/', BlogDetailView.as_view()),
-    path('api/my/blog/', MyBlogAPIView.as_view()),  
+    path('api/my/blog/', MyBlogAPIView.as_view()),
+    path('api/blog/views/<slug:slug>/', ViewsCountApiView.as_view()),
+    path('api/blog/create/comment/<slug:slug>/',CommentCreateApiView.as_view()),
+    path('api/blog/get/comment/<slug:slug>/',CommentGetApiView.as_view()) 
+
 
 ]
 

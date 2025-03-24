@@ -84,4 +84,20 @@ class BlogDetailSeriazlizer(serializers.ModelSerializer):
         
     def get_author(self, obj):
         return f"{obj.user.first_name if obj.user.first_name else ''} {obj.user.last_name if obj.user.last_name else ''}"   
-      
+
+
+class CommentSeriazlizer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['comment']  
+
+
+class CommentGetSeriazlizer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = ['comment','user']
+    
+    def get_user(self, obj):
+        return f"{obj.user.first_name if obj.user.first_name else ''} {obj.user.last_name if obj.user.last_name else ''}"   
