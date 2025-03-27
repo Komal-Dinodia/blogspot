@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+import uuid
 from django.db import models
 from ckeditor.fields import RichTextField
 
@@ -10,6 +11,9 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
     
+class UserToken(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    token = models.UUIDField(default=uuid.uuid4,unique=True)
 
 class Blog(models.Model):
     title = models.CharField(max_length=100, unique=True)

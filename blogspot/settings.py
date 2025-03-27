@@ -190,18 +190,19 @@ EMAIL_HOST_PASSWORD = 'ijeyjntttghdvvcg'
 
 REST_AUTH = {
     'USE_JWT':True,
-    'REGISTER_SERIALIZER' : 'resources.serializers.CustomRegisterSerializer',
-    'LOGIN_SERIALIZER': 'resources.serializers.CustomLoginSerializer',
+    }
+FRONTEND_URL = "http://localhost:5173"  
 
-}
-# Replace with your frontend's base URL
-FRONTEND_URL = "http://localhost:5173"  # Change this to your actual frontend URL
-
-# Set the custom adapters
-ACCOUNT_ADAPTER = "resources.adapters.CustomAccountAdapter"
-ACCOUNT_PASSWORD_RESET_ADAPTER = "resources.adapters.CustomPasswordResetAdapter"
 
 SITE_ID = 1
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# CKEDITOR_CONFIGS = {
+#     'default': {
+#         'toolbar': 'full',
+#         'height': 300,
+#         'width': 'auto',
+#     },
+# }

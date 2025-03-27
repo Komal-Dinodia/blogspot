@@ -1,5 +1,5 @@
 from django.contrib import admin
-from resources.models import UserProfile, Blog, Comment
+from resources.models import UserProfile, Blog, Comment, UserToken
 
 admin.site.register(UserProfile)
 
@@ -12,6 +12,8 @@ class BlogAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('user', 'blog', 'comment', 'created_at', 'updated_at')
+    list_display = ('id','user', 'blog', 'comment', 'created_at', 'updated_at')
     list_filter = ('created_at',)
     search_fields = ('user__username', 'blog__title', 'comment')
+
+admin.site.register(UserToken)
