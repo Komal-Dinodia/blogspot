@@ -112,3 +112,17 @@ class CreateBlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
         fields = ['title', 'description','image']
+    
+    def validate_title(self, value):
+        if not value.strip():  # Check if title is empty or contains only spaces
+            raise serializers.ValidationError("Title field is required.")
+        if len(value) < 2:
+            raise serializers.ValidationError("Title must be at least 3 characters long.")
+        return value
+
+    def validate_description(self, value):
+        if not value.strip():  # Check if description is empty or contains only spaces
+            raise serializers.ValidationError("Description field is required.")
+        if len(value) < 10:
+            raise serializers.ValidationError("Description must be at least 10 characters long.")
+        return value

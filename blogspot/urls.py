@@ -3,7 +3,7 @@ from django.urls import path, include
 from resources.views import BlogAPIView, BlogDetailView, MyBlogAPIView, VerifyEmailAPIVIew, \
     ViewsCountApiView, CommentCreateApiView, CommentGetApiView,CreateBlogApiView, \
     EditDeleteBlogAPIView, DeleteCommentView, SignupView, LoginView, ForgotPasswordView, \
-    ForgotConfirmPasswordView, ChangePasswordView
+    ForgotConfirmPasswordView, ChangePasswordView, ResendEmailVerificationView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -16,6 +16,7 @@ urlpatterns = [
     path('auth/login/',LoginView.as_view()),
     path('auth/password/reset/',ForgotPasswordView.as_view()),
     path('auth/password/reset/confirm/',ForgotConfirmPasswordView.as_view()),
+    path('auth/resend/verify-email/',ResendEmailVerificationView.as_view()),
     path('auth/change/password/',ChangePasswordView.as_view()),
     path('api/blog/', BlogAPIView.as_view()), 
     path('api/blog/<slug:slug>/', BlogDetailView.as_view()),

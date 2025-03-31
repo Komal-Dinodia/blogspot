@@ -6,7 +6,7 @@ from rest_framework import status, permissions,generics
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.filters import SearchFilter
+# from rest_framework.filters import SearchFilter
 from django.contrib.auth.models import User
 from allauth.account.models import EmailAddress
 from resources.models import Blog, Comment, UserToken
@@ -46,7 +46,9 @@ class SignupView(APIView):
             user.set_password(password1)
             user.save()
             EmailAddress.objects.create(email=email,user=user,primary=True) #store email in emailaddress
-            UserToken.objects.create(user=user) #create token for verification
+            usertoken = UserToken.objects.create(user=user) #create token for verification
+            usertoken.save()
+            
             self.send_mail(email)
             return Response({"detail":"Verification e-mail sent."},status=status.HTTP_201_CREATED)
         else:
@@ -79,6 +81,12 @@ class LoginView(APIView):
         if email_exist!=True:
             return Response({"non_field_errors": ["Unable to log in with provided credentials."]},status=status.HTTP_400_BAD_REQUEST)
         
+        email_verified = EmailAddress.objects.get(email=email).verified
+        if email_verified==False:
+            user = User.objects.get(email=email)
+            token, created = UserToken.objects.get_or_create(user=user)  
+            self.send_mail(email, token.token)
+            return Response({"non_field_errors": ["Email not verified. Verification email sent again."]},status=status.HTTP_400_BAD_REQUEST,)
         user = User.objects.get(email=email)
         user = authenticate(username=user.username, password=password)
         if user is not None:
@@ -98,6 +106,58 @@ class LoginView(APIView):
             
         else:
             return Response({"non_field_errors": ["Unable to log in with provided credentials."]},status=status.HTTP_400_BAD_REQUEST)
+    def send_mail(self,email,token):
+
+        # creates SMTP session
+        s = smtplib.SMTP('smtp.gmail.com', 587)
+        # start TLS for security
+        s.starttls()
+        # Authentication
+        s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+        # message to be sent
+        user_token = UserToken.objects.get(user__email=email)
+        message = f"Hello,\n\n Please confirm your email here. \n http://127.0.0.1:5173/verify-email/{user_token.token}"
+        # sending the mail
+        s.sendmail(settings.EMAIL_HOST_USER, email, message)
+        # terminating the session
+        s.quit()
+
+class ResendEmailVerificationView(APIView):
+    def post(self,request):
+        data = request.data
+        email = data.get('email')
+        if not email:
+            return Response({"error":["Please enter your email"]},status=status.HTTP_400_BAD_REQUEST)
+        else:
+            try:
+                email_address = EmailAddress.objects.get(email=email)
+                if email_address.verified:
+                    return Response({"error":["user already verified"]},status=status.HTTP_400_BAD_REQUEST)
+            
+                user = User.objects.get(email=email)
+                self.send_mail(email)
+                return Response({"message": ["Verification email sent again."]},status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({"error":["User not found"]}, status=status.HTTP_404_NOT_FOUND)
+            except EmailAddress.DoesNotExist:
+                return Response({"error":["User not found"]}, status=status.HTTP_404_NOT_FOUND)
+            
+            
+    def send_mail(self,email):
+
+        # creates SMTP session
+        s = smtplib.SMTP('smtp.gmail.com', 587)
+        # start TLS for security
+        s.starttls()
+        # Authentication
+        s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+        # message to be sent
+        user_token = UserToken.objects.get(user__email=email)
+        message = f"Hello,\n\n Please confirm your email here. \n http://127.0.0.1:5173/verify-email/{user_token.token}"
+        # sending the mail
+        s.sendmail(settings.EMAIL_HOST_USER, email, message)
+        # terminating the session
+        s.quit()            
 
 class ForgotPasswordView(APIView):
     def post(self, request):
@@ -342,3 +402,74 @@ class EditDeleteBlogAPIView(APIView):
         blog.delete()
         return Response({"message": "Blog deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
+# from rest_framework.response import Response
+# from rest_framework import status
+# from rest_framework.views import APIView
+# from django.contrib.auth import authenticate
+# from django.core.mail import send_mail
+# from django.conf import settings
+# from rest_framework_simplejwt.tokens import RefreshToken
+# from allauth.account.models import EmailAddress
+# from django.contrib.auth import get_user_model
+# from .models import UserToken
+
+# User = get_user_model()
+
+# class LoginView(APIView):
+#     def post(self, request):
+#         serializer = LoginSerializer(data=request.data)
+#         if serializer.is_valid():
+#             email = serializer.validated_data.get("email")
+#             password = serializer.validated_data.get("password")
+
+#         # Check if the email exists
+#         if not User.objects.filter(email=email).exists():
+#             return Response(
+#                 {"non_field_errors": ["Unable to log in with provided credentials."]},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#             )
+
+#         # Check if the email is verified
+#         email_verified = EmailAddress.objects.filter(email=email, verified=True).exists()
+#         if not email_verified:
+#             user = User.objects.get(email=email)
+#             token, created = UserToken.objects.get_or_create(user=user)  # Generate or get existing token
+#             self.send_mail(email, token.token)
+#             return Response(
+#                 {"non_field_errors": ["Email not verified. Verification email sent again."]},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#             )
+
+#         # Authenticate the user
+#         user = User.objects.get(email=email)
+#         user = authenticate(username=user.username, password=password)
+#         if user is not None:
+#             refresh = RefreshToken.for_user(user)
+#             data = {
+#                 "access": str(refresh.access_token),
+#                 "refresh": str(refresh),
+#                 "user": {
+#                     "pk": user.id,
+#                     "username": user.username,
+#                     "email": user.email,
+#                     "first_name": user.first_name,
+#                     "last_name": user.last_name,
+#                 },
+#             }
+#             return Response(data, status=status.HTTP_200_OK)
+
+#         return Response(
+#             {"non_field_errors": ["Unable to log in with provided credentials."]},
+#             status=status.HTTP_400_BAD_REQUEST,
+#         )
+
+#     def send_mail(self, email, token):
+#         subject = "Email Verification"
+#         message = f"Hello,\n\nPlease confirm your email here:\n http://127.0.0.1:5173/verify-email/{token}"
+#         send_mail(
+#             subject,
+#             message,
+#             settings.EMAIL_HOST_USER,
+#             [email],
+#             fail_silently=False,
+#         )
