@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-p3whijni)ze4+k%9i3ekayq%jgkh-40i%ug_1f0pm!r57^=$o*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -108,7 +108,7 @@ DATABASES = {
         'NAME': 'mydatabase',  
         'USER': 'myuser',      
         'PASSWORD': 'Myuser@1234',  
-        'HOST': 'localhost',   
+        'HOST': 'mysql_db',   
         'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4'
@@ -152,6 +152,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
