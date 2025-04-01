@@ -108,8 +108,8 @@ DATABASES = {
         'NAME': 'mydatabase',  
         'USER': 'myuser',      
         'PASSWORD': 'Myuser@1234',  
-        'HOST': 'mysql_dbkomal',   
-        'PORT': '3306',
+        'HOST': 'db',   
+        'PORT': '3310',
         'OPTIONS': {
             'charset': 'utf8mb4'
         },        
