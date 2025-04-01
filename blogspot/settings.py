@@ -66,11 +66,11 @@ MIDDLEWARE = [
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",  # Allow frontend access
+    "http://103.206.101.251:5003",
+    "http://103.206.101.251:5003",  # Allow frontend access
 ]
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
+CSRF_TRUSTED_ORIGINS = ["http://103.206.101.251:5003", "http://103.206.101.251:5003"]
 
 CORS_ALLOW_HEADERS = [
     "content-type",
@@ -108,7 +108,7 @@ DATABASES = {
         'NAME': 'mydatabase',  
         'USER': 'myuser',      
         'PASSWORD': 'Myuser@1234',  
-        'HOST': 'mysql_db',   
+        'HOST': 'mysql_dbkomal',   
         'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4'
@@ -192,7 +192,7 @@ EMAIL_HOST_PASSWORD = 'ijeyjntttghdvvcg'
 REST_AUTH = {
     'USE_JWT':True,
     }
-FRONTEND_URL = "http://localhost:5173"  
+FRONTEND_URL = "http://103.206.101.251:5003"  
 
 
 SITE_ID = 1

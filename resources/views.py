@@ -64,7 +64,7 @@ class SignupView(APIView):
         s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
         # message to be sent
         user_token = UserToken.objects.get(user__email=email)
-        message = f"Hello,\n\n Please confirm your email here. \n http://127.0.0.1:5173/verify-email/{user_token.token}"
+        message = f"Hello,\n\n Please confirm your email here. \n http://103.206.101.251:5003/verify-email/{user_token.token}"
         # sending the mail
         s.sendmail(settings.EMAIL_HOST_USER, email, message)
         # terminating the session
@@ -116,7 +116,7 @@ class LoginView(APIView):
         s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
         # message to be sent
         user_token = UserToken.objects.get(user__email=email)
-        message = f"Hello,\n\n Please confirm your email here. \n http://127.0.0.1:5173/verify-email/{user_token.token}"
+        message = f"Hello,\n\n Please confirm your email here. \n http://103.206.101.251:5003/verify-email/{user_token.token}"
         # sending the mail
         s.sendmail(settings.EMAIL_HOST_USER, email, message)
         # terminating the session
@@ -153,7 +153,7 @@ class ResendEmailVerificationView(APIView):
         s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
         # message to be sent
         user_token = UserToken.objects.get(user__email=email)
-        message = f"Hello,\n\n Please confirm your email here. \n http://127.0.0.1:5173/verify-email/{user_token.token}"
+        message = f"Hello,\n\n Please confirm your email here. \n http://103.206.101.251:5003/verify-email/{user_token.token}"
         # sending the mail
         s.sendmail(settings.EMAIL_HOST_USER, email, message)
         # terminating the session
@@ -184,7 +184,7 @@ class ForgotPasswordView(APIView):
         s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
         # message to be sent
         user_token = UserToken.objects.get(user__email=email)
-        message = f"Hello,\n\n Please reset your password here. \n http://127.0.0.1:5173/reset-password/{user_token.user.id}/{user_token.token}"
+        message = f"Hello,\n\n Please reset your password here. \n http://103.206.101.251:5003/reset-password/{user_token.user.id}/{user_token.token}"
         # sending the mail
         s.sendmail(settings.EMAIL_HOST_USER, email, message)
         # terminating the session
