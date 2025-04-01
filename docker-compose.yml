@@ -6,12 +6,14 @@ services:
     container_name: mysql_dbkomal
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: Myuser@1234
+      MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: mydatabase
       MYSQL_USER: myuser
       MYSQL_PASSWORD: Myuser@1234
     ports:
       - "3310:3310"
+    command: --port=3310  # Force MySQL to run on 3310
+
     volumes:
       - mysql_data:/var/lib/mysql
 
