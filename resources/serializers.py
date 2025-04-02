@@ -60,10 +60,8 @@ class BlogGetSerializer(serializers.ModelSerializer):
         return Comment.objects.filter(blog=obj).count()
     
     def get_image(self, obj):
-        if settings.DEBUG:
-            return f'http://127.0.0.1:8000/media/{obj.image}'
-        else:
-            return obj.image.url
+        return f'http://103.206.101.251:8003/media/{obj.image}'
+
         
     def get_author(self, obj):
         return f"{obj.user.first_name if obj.user.first_name else ''} {obj.user.last_name if obj.user.last_name else ''}"   
