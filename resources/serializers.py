@@ -63,7 +63,7 @@ class BlogGetSerializer(serializers.ModelSerializer):
         if settings.DEBUG:
             return f'http://127.0.0.1:8000/media/{obj.image}'
         else:
-            return obj.image
+            return obj.image.url
         
     def get_author(self, obj):
         return f"{obj.user.first_name if obj.user.first_name else ''} {obj.user.last_name if obj.user.last_name else ''}"   
