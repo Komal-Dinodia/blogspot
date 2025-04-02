@@ -82,7 +82,7 @@ class BlogDetailSeriazlizer(serializers.ModelSerializer):
     
     def get_image(self, obj):
         if settings.DEBUG:
-            return f'http://127.0.0.1:8000/media/{obj.image}'
+            return f'http://103.206.101.251:8003/media/{obj.image}'
         else:
             return obj.image
         
