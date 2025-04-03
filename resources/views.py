@@ -418,6 +418,7 @@ class CommentReplyView(APIView):
         if serializer.is_valid():
             comment = Comment.objects.get(id=comment_id)
             serializer.save(user=request.user, comment=comment)
+            return Response({"message":"Reply added successfully"},status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
