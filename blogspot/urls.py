@@ -3,7 +3,8 @@ from django.urls import path, include
 from resources.views import BlogAPIView, BlogDetailView, MyBlogAPIView, VerifyEmailAPIVIew, \
     ViewsCountApiView, CommentCreateApiView, CommentGetApiView,CreateBlogApiView, \
     EditDeleteBlogAPIView, DeleteCommentView, SignupView, LoginView, ForgotPasswordView, \
-    ForgotConfirmPasswordView, ChangePasswordView, ResendEmailVerificationView
+    ForgotConfirmPasswordView, ChangePasswordView, ResendEmailVerificationView, \
+    CommentReplyView, LogoutView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -14,6 +15,7 @@ urlpatterns = [
     path('auth/registration/', SignupView.as_view()),
     path('auth/registration/verify/email/', VerifyEmailAPIVIew.as_view()),
     path('auth/login/',LoginView.as_view()),
+    path('auth/logout/',LogoutView.as_view()),
     path('auth/password/reset/',ForgotPasswordView.as_view()),
     path('auth/password/reset/confirm/',ForgotConfirmPasswordView.as_view()),
     path('auth/resend/verify-email/',ResendEmailVerificationView.as_view()),
@@ -27,7 +29,7 @@ urlpatterns = [
     path("api/blog/delete/comment/<int:comment_id>/", DeleteCommentView.as_view(), name="delete-comment"),
     path('api/create/blog/',CreateBlogApiView.as_view()),
     path('blog/edit-delete/<slug:slug>/', EditDeleteBlogAPIView.as_view(), name='edit-delete-blog'),
-
+    path('api/comment/reply/<int:comment_id>/',CommentReplyView.as_view()),
 
 
 ]

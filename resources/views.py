@@ -6,13 +6,14 @@ from rest_framework import status, permissions,generics
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
-# from rest_framework.filters import SearchFilter
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from allauth.account.models import EmailAddress
-from resources.models import Blog, Comment, UserToken
+from resources.models import Blog, Comment, UserToken, CommentReply
 from resources.serializers import BlogGetSerializer, BlogDetailSeriazlizer, CommentSeriazlizer, \
     CommentGetSeriazlizer, CreateBlogSerializer, SignupSerializer, LoginSerializer, \
-    ForgotPasswordSerializer, ForgotConfirmPasswordSerializer, ChangePasswordSerializer
+    ForgotPasswordSerializer, ForgotConfirmPasswordSerializer, ChangePasswordSerializer, \
+    CommentReplySerializer, CommentReplyGetSerializer
 import smtplib
 from django.conf import settings
 from django.contrib.auth import authenticate
@@ -236,6 +237,10 @@ class ChangePasswordView(APIView):
                 return Response({"error":"Old password is incorrect."},status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+class LogoutView(APIView):
+    def post(self,request):
+        logout(request)
+        return Response({"message":"user logout successfully"},status=status.HTTP_200_OK)
 
 
 class BlogAPIView(APIView):
@@ -272,7 +277,7 @@ class MyBlogAPIView(APIView):
     authentication_classes = [JWTAuthentication]
 
     def get(self, request):
-        queryset = Blog.objects.filter(is_published=True, user=request.user)
+        queryset = Blog.objects.filter(user=request.user)
 
         # Search filter: Filter posts by title
         search_query = request.GET.get('search', None)
@@ -402,3 +407,21 @@ class EditDeleteBlogAPIView(APIView):
         blog.delete()
         return Response({"message": "Blog deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
+class CommentReplyView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    seralizer = CommentReplySerializer
+
+    def post(self,request, comment_id):
+        data = request.data
+        serializer = self.seralizer(data=data)
+        if serializer.is_valid():
+            comment = Comment.objects.get(id=comment_id)
+            serializer.save(user=request.user, comment=comment)
+        else:
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self,request, comment_id):
+        comment = CommentReply.objects.filter(comment__id=comment_id)
+        serializer = CommentReplyGetSerializer(comment,many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)

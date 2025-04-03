@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from allauth.account.models import EmailAddress
 from rest_framework.exceptions import ValidationError
-from resources.models import Blog, Comment
+from resources.models import Blog, Comment, CommentReply
 from django.utils.text import slugify  
 from django.conf import settings
 
@@ -53,7 +53,7 @@ class BlogGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
         fields = [
-            'slug', 'title', 'image', 'likes', 'views', 'updated_at' ,'user', 'comment_count', 'author'
+            'slug', 'title', 'image', 'likes', 'views', 'updated_at' ,'user', 'comment_count', 'author', 'is_published'
         ]    
 
     def get_comment_count(self, obj):
@@ -109,18 +109,19 @@ class CommentGetSeriazlizer(serializers.ModelSerializer):
 class CreateBlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
-        fields = ['title', 'description','image']
+        fields = ['title', 'description','image','is_published']
     
-    def validate_title(self, value):
-        if not value.strip():  # Check if title is empty or contains only spaces
-            raise serializers.ValidationError("Title field is required.")
-        if len(value) < 2:
-            raise serializers.ValidationError("Title must be at least 3 characters long.")
-        return value
+    
 
-    def validate_description(self, value):
-        if not value.strip():  # Check if description is empty or contains only spaces
-            raise serializers.ValidationError("Description field is required.")
-        if len(value) < 10:
-            raise serializers.ValidationError("Description must be at least 10 characters long.")
-        return value
+class CommentReplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommentReply
+        fields = ['reply']
+
+class CommentReplyGetSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    class Meta:
+        model = CommentReply
+        fields = ['id','reply','user','created_at']
+    def get_user(self,obj):
+        return f"{obj.user.username if obj.user.username else ''}"   
