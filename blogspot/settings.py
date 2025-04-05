@@ -71,7 +71,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Allow frontend access
 ]
 
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:5173", "http://127.0.0.1:5173", "http://103.206.101.251:5003"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:5173", "http://103.206.101.251:5003"]
 
 CORS_ALLOW_HEADERS = [
     "content-type",
