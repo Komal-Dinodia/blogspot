@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -9,18 +10,18 @@ from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from allauth.account.models import EmailAddress
-from resources.models import Blog, Comment, UserToken, CommentReply
+from resources.models import Blog, Comment, UserToken
 from resources.serializers import BlogGetSerializer, BlogDetailSeriazlizer, CommentSeriazlizer, \
     CommentGetSeriazlizer, CreateBlogSerializer, SignupSerializer, LoginSerializer, \
     ForgotPasswordSerializer, ForgotConfirmPasswordSerializer, ChangePasswordSerializer, \
-    CommentReplySerializer, CommentReplyGetSerializer
+    CommentReplySerializer
 import smtplib
 from django.conf import settings
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 
 class CustomPagination(PageNumberPagination):
-    page_size = 3
+    page_size = 4
 
 
 class SignupView(APIView):
@@ -246,7 +247,7 @@ class LogoutView(APIView):
 class BlogAPIView(APIView):
 
     def get(self, request):
-        queryset = Blog.objects.filter(is_published=True)
+        queryset = Blog.objects.filter(is_published=True).order_by('-created_at')
 
         # Search filter: Filter posts by title
         search_query = request.GET.get('search', None)
@@ -277,7 +278,7 @@ class MyBlogAPIView(APIView):
     authentication_classes = [JWTAuthentication]
 
     def get(self, request):
-        queryset = Blog.objects.filter(user=request.user)
+        queryset = Blog.objects.filter(user=request.user).order_by('-created_at')
 
         # Search filter: Filter posts by title
         search_query = request.GET.get('search', None)
@@ -347,8 +348,9 @@ class CreateBlogApiView(APIView):
         serializer = CreateBlogSerializer(data=data)
         if serializer.is_valid():
             title = serializer.validated_data['title']
-            slug = title.lower().replace(' ','-')
-            serializer.save(user=request.user,slug=slug)
+            slug = re.sub(r'[^a-zA-Z0-9\s-]', '', title)
+            slug = slug.lower().replace(' ','-')
+            serializer.save(user=request.user, slug=slug)
             return Response("Blog Created Successfuly",status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -394,7 +396,10 @@ class EditDeleteBlogAPIView(APIView):
 
         serializer = CreateBlogSerializer(blog, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
+            title = serializer.validated_data['title']
+            slug = re.sub(r'[^a-zA-Z0-9\s-]', '', title)
+            slug = slug.lower().replace(' ','-')
+            serializer.save(slug=slug)
             return Response({"message": "Blog updated successfully.", "blog": serializer.data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -416,13 +421,8 @@ class CommentReplyView(APIView):
         data = request.data
         serializer = self.seralizer(data=data)
         if serializer.is_valid():
-            comment = Comment.objects.get(id=comment_id)
-            serializer.save(user=request.user, comment=comment)
+            parent_comment = Comment.objects.get(id=comment_id)
+            serializer.save(user=request.user, parent=parent_comment)
             return Response({"message":"Reply added successfully"},status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-    def get(self,request, comment_id):
-        comment = CommentReply.objects.filter(comment__id=comment_id)
-        serializer = CommentReplyGetSerializer(comment,many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)

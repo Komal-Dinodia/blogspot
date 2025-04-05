@@ -4,9 +4,10 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from allauth.account.models import EmailAddress
 from rest_framework.exceptions import ValidationError
-from resources.models import Blog, Comment, CommentReply
+from resources.models import Blog, Comment
 from django.utils.text import slugify  
 from django.conf import settings
+import re
 
 
 User = get_user_model()
@@ -98,13 +99,19 @@ class CommentSeriazlizer(serializers.ModelSerializer):
 
 class CommentGetSeriazlizer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
+    replies = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ['id','comment','user','created_at']
+        fields = ['id','comment','user','created_at', 'replies']
     
     def get_user(self, obj):
-        return f"{obj.user.username if obj.user.username else ''}"   
+        return f"{obj.user.username if obj.user.username else ''}" 
+
+    def get_replies(self, obj):
+        if obj.replies.exists():
+            return CommentGetSeriazlizer(obj.replies.all(), many=True).data
+        return []  
 
 class CreateBlogSerializer(serializers.ModelSerializer):
     class Meta:
@@ -115,13 +122,5 @@ class CreateBlogSerializer(serializers.ModelSerializer):
 
 class CommentReplySerializer(serializers.ModelSerializer):
     class Meta:
-        model = CommentReply
-        fields = ['reply']
-
-class CommentReplyGetSerializer(serializers.ModelSerializer):
-    user = serializers.SerializerMethodField()
-    class Meta:
-        model = CommentReply
-        fields = ['id','reply','user','created_at']
-    def get_user(self,obj):
-        return f"{obj.user.username if obj.user.username else ''}"   
+        model = Comment
+        fields = ['comment']

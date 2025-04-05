@@ -33,22 +33,17 @@ class Blog(models.Model):
     
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, null=True, blank=True)
     comment = models.CharField(max_length=500)
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.blog.title}"
-    
-class CommentReply(models.Model):
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    reply = models.CharField(max_length=500)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+        return f"{self.user.username} - {self.comment[:30]}"
 
-    def __str__(self):
-        return f"{self.user.username}"
+
 
 

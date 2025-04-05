@@ -1,5 +1,5 @@
 from django.contrib import admin
-from resources.models import UserProfile, Blog, Comment, UserToken, CommentReply
+from resources.models import UserProfile, Blog, Comment, UserToken
 
 admin.site.register(UserProfile)
 
@@ -17,4 +17,3 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'blog__title', 'comment')
 
 admin.site.register(UserToken)
-admin.site.register(CommentReply)
